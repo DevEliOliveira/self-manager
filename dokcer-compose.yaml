@@ -1,0 +1,53 @@
+version: '3'
+services:
+  # adcione aqui os serviços como backends
+  kong:
+    image: kong:latest
+    container_name: kong
+    ports:
+      - "8000:8000"
+      - "8001:8001"
+      - "8443:8443"
+      - "8444:8444"
+    environment:
+      - KONG_DATABASE=postgres
+      - KONG_PG_HOST=postgres
+      - KONG_PG_USER=kong
+      - KONG_PG_PASSWORD=kong
+      - KONG_PG_DATABASE=kong
+    depends_on:
+      - postgres
+    networks:
+      - app_network
+
+  redis:
+    image: redis:latest
+    container_name: redis
+    ports:
+      - "6379:6379"
+    networks:
+      - app_network
+
+  rabbitmq:
+    image: rabbitmq:latest
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      - app_network
+
+  postgres:
+    image: postgres:latest
+    container_name: postgres
+    environment:
+      - POSTGRES_USER=kong
+      - POSTGRES_PASSWORD=kong
+      - POSTGRES_DB=kong
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data
+    networks:
+      - app_network
+
+networks:
+  app_network:
